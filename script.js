@@ -10,11 +10,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextMonthMainBtn = document.getElementById('nextMonthMain');
     const calendarViewHeader = document.getElementById('calendarViewHeader');
     const todayPhotoBtn = document.getElementById('todayPhotoBtn');
-    const photoPreview = document.getElementById('photoPreview'); // Get the preview element
+    const photoPreview = document.getElementById('photoPreview');
+    const slideshowArea = document.getElementById('slideshowArea'); // Diashow-Bereich
+    const slideshowImage = document.getElementById('slideshowImage'); // Diashow-Bild
+    const prevSlideBtn = document.getElementById('prevSlide'); // "Zurück" Button Diashow
+    const nextSlideBtn = document.getElementById('nextSlide'); // "Weiter" Button Diashow
 
     let currentDate = new Date();
     let currentYear = currentDate.getFullYear();
     let currentMonth = currentDate.getMonth();
+    let allPhotos = []; // Array zum Speichern aller Fotos
+    let currentSlideIndex = 0; // Aktueller Index in der Diashow
 
     // Event listener for the "Today" button next to the date input
     todayPhotoBtn.addEventListener('click', () => {
@@ -23,7 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
         photoDateInput.value = formattedToday;
     });
 
-    // Event listener for the "Previous" button (main calendar)
+    // Event listeners for the main calendar navigation
     prevMonthMainBtn.addEventListener('click', () => {
         currentMonth--;
         if (currentMonth < 0) {
@@ -31,9 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
             currentYear--;
         }
         updateCalendarView(currentYear, currentMonth);
+        hideSlideshow(); // Diashow ausblenden beim Navigieren im Kalender
     });
 
-    // Event listener for the "Next" button (main calendar)
     nextMonthMainBtn.addEventListener('click', () => {
         currentMonth++;
         if (currentMonth > 11) {
@@ -41,6 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
             currentYear++;
         }
         updateCalendarView(currentYear, currentMonth);
+        hideSlideshow(); // Diashow ausblenden beim Navigieren im Kalender
     });
 
     deleteAllPhotosButton.addEventListener('click', () => {
@@ -49,6 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('All saved photos have been deleted.');
             updateCalendarView(currentYear, currentMonth);
             selectedDayInfoDiv.innerHTML = '';
+            hideSlideshow(); // Diashow ausblenden nach dem Löschen
         }
     });
 
@@ -66,14 +74,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 photoInput.value = '';
                 photoDateInput.value = '';
                 photoDescription.value = '';
-                photoPreview.src = ''; // Clear preview
-                photoPreview.style.display = 'none'; // Hide preview
+                photoPreview.src = '';
+                photoPreview.style.display = 'none';
                 updateCalendarView(currentYear, currentMonth);
-                // Reload day info after saving, if the current date is selected
                 const selectedDateInCalendar = document.querySelector('.calendar-day.selected');
                 if (selectedDateInCalendar) {
                     showDayInfo(selectedDateInCalendar.textContent);
                 }
+                loadAllPhotosForSlideshow(); // Fotos neu laden nach dem Speichern
             };
             reader.readAsDataURL(file);
         } else {
@@ -89,6 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         console.log('All photos have been deleted from local storage.');
+        allPhotos = []; // Array leeren
+        currentSlideIndex = 0;
     }
 
     function savePhotoData(date, imageData, description) {
@@ -130,14 +140,20 @@ document.addEventListener('DOMContentLoaded', () => {
             dayCell.textContent = day;
             if (getPhotoData(date)) {
                 dayCell.classList.add('has-photo');
+                dayCell.addEventListener('click', () => {
+                    document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+                    dayCell.classList.add('selected');
+                    showDayInfo(date);
+                    loadAndShowSlideshow(date); // Diashow laden und anzeigen
+                });
+            } else {
+                dayCell.addEventListener('click', () => {
+                    document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+                    dayCell.classList.add('selected');
+                    showDayInfo(date);
+                    hideSlideshow(); // Diashow ausblenden, wenn kein Foto vorhanden
+                });
             }
-            dayCell.addEventListener('click', () => {
-                // Remove 'selected' class from all other days
-                document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
-                // Add 'selected' class to the clicked day
-                dayCell.classList.add('selected');
-                showDayInfo(date);
-            });
             calendarDiv.appendChild(dayCell);
         }
     }
@@ -150,7 +166,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const photoData = getPhotoData(date);
         selectedDayInfoDiv.innerHTML = `<h3>${date}</h3>`;
         if (photoData) {
-            selectedDayInfoDiv.innerHTML += `<img src="${photoData.imageData}" style="max-width: 200px;"><p>${photoData.description || ''}</p>`;
+            selectedDayInfoDiv.innerHTML += `<img src="${photoData.imageData}" style="max-width: 200px;"><p>${photoData.description || ''}</p><button id="openSlideshowBtn" style="margin-top: 10px; padding: 8px 12px; cursor: pointer;">Open Slideshow</button>`;
+            const openSlideshowBtn = document.getElementById('openSlideshowBtn');
+            if (openSlideshowBtn) {
+                openSlideshowBtn.addEventListener('click', () => {
+                    loadAndShowSlideshow(date);
+                });
+            }
         } else {
             selectedDayInfoDiv.innerHTML += `<p>No photo saved for this day.</p><button id="setDateButton" data-date="${date}">Save photo for this day</button>`;
             const setDateButton = document.getElementById('setDateButton');
@@ -179,19 +201,70 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initial call to generate the calendar
-    updateCalendarView(currentYear, currentMonth);
+    function loadAllPhotosForSlideshow() {
+        allPhotos = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key.startsWith('photo-')) {
+                const photoData = getPhotoData(key.substring(6)); // Remove 'photo-' prefix
+                if (photoData && photoData.imageData) {
+                    allPhotos.push(photoData.imageData);
+                }
+            }
+        }
+        console.log('All photos loaded for slideshow:', allPhotos.length);
+        currentSlideIndex = 0;
+    }
 
-    // Show information for today on initial load
+    function showSlide(index) {
+        if (allPhotos.length > 0) {
+            currentSlideIndex = (index + allPhotos.length) % allPhotos.length;
+            slideshowImage.src = allPhotos[currentSlideIndex];
+        }
+    }
+
+    function loadAndShowSlideshow(selectedDate) {
+        loadAllPhotosForSlideshow();
+        if (allPhotos.length > 0) {
+            slideshowArea.style.display = 'block';
+            const selectedPhotoData = getPhotoData(selectedDate);
+            if (selectedPhotoData && selectedPhotoData.imageData) {
+                const index = allPhotos.indexOf(selectedPhotoData.imageData);
+                showSlide(index !== -1 ? index : 0);
+            } else {
+                showSlide(0); // Show the first photo if the selected date's photo isn't found
+            }
+        } else {
+            alert('No photos available for the slideshow.');
+            hideSlideshow();
+        }
+    }
+
+    function hideSlideshow() {
+        slideshowArea.style.display = 'none';
+    }
+
+    // Event listeners for slideshow navigation
+    prevSlideBtn.addEventListener('click', () => {
+        showSlide(currentSlideIndex - 1);
+    });
+
+    nextSlideBtn.addEventListener('click', () => {
+        showSlide(currentSlideIndex + 1);
+    });
+
+    // Initial calls
+    updateCalendarView(currentYear, currentMonth);
     const today = new Date();
     const formattedToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     showDayInfo(formattedToday);
-
-    // Mark today's date in the calendar on initial load
     const todayCell = document.querySelector(`.calendar-day:nth-child(${new Date().getDate() + new Date(new Date().getFullYear(), new Date().getMonth(), 1).getDay()})`);
     if (todayCell) {
         todayCell.classList.add('selected');
     }
+
+    // Load all photos initially for the slideshow (optional, can be loaded on demand)
+    loadAllPhotosForSlideshow();
 });
 
 function deleteAllPhotos() {
@@ -242,12 +315,20 @@ function generateCalendar(year, month) {
         dayCell.textContent = day;
         if (getPhotoData(date)) {
             dayCell.classList.add('has-photo');
+            dayCell.addEventListener('click', () => {
+                document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+                dayCell.classList.add('selected');
+                showDayInfo(date);
+                loadAndShowSlideshow(date); // Diashow laden und anzeigen
+            });
+        } else {
+            dayCell.addEventListener('click', () => {
+                document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
+                dayCell.classList.add('selected');
+                showDayInfo(date);
+                hideSlideshow(); // Diashow ausblenden, wenn kein Foto vorhanden
+            });
         }
-        dayCell.addEventListener('click', () => {
-            document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
-            dayCell.classList.add('selected');
-            showDayInfo(date);
-        });
         calendarDiv.appendChild(dayCell);
     }
 }
@@ -260,7 +341,13 @@ function showDayInfo(date) {
     const photoData = getPhotoData(date);
     selectedDayInfoDiv.innerHTML = `<h3>${date}</h3>`;
     if (photoData) {
-        selectedDayInfoDiv.innerHTML += `<img src="${photoData.imageData}" style="max-width: 200px;"><p>${photoData.description || ''}</p>`;
+        selectedDayInfoDiv.innerHTML += `<img src="${photoData.imageData}" style="max-width: 200px;"><p>${photoData.description || ''}</p><button id="openSlideshowBtn" style="margin-top: 10px; padding: 8px 12px; cursor: pointer;">Open Slideshow</button>`;
+        const openSlideshowBtn = document.getElementById('openSlideshowBtn');
+        if (openSlideshowBtn) {
+            openSlideshowBtn.addEventListener('click', () => {
+                loadAndShowSlideshow(date);
+            });
+        }
     } else {
         selectedDayInfoDiv.innerHTML += `<p>No photo saved for this day.</p><button id="setDateButton" data-date="${date}">Save photo for this day</button>`;
         const setDateButton = document.getElementById('setDateButton');
