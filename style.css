@@ -1,0 +1,329 @@
+body {
+    font-family: 'Outfit', serif; /* Outfit als Hauptschrift */
+    margin: 40px;
+    background-color: #b0f4ff; /* Sehr helles Mintgrün */
+    color: #4a5568; /* Dunkelgrau-Blau */
+    line-height: 1.7;
+    font-size: 1rem;
+}
+
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px;
+    background-color: #fff;
+    border-radius: 12px; /* Stärkere Abrundung */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Weicher Schatten */
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+}
+
+h1, h2, h3 {
+    font-family: 'Outfit', serif; /* Auch für Überschriften Outfit verwenden */
+    color: #2d3748; /* Dunkleres Grau-Blau */
+    text-align: center;
+    font-weight: 600; /* Halb-fett */
+}
+
+#photoInputArea,
+#calendarView,
+#selectedDayInfo,
+#slideshowArea {
+    padding: 30px;
+    border: 1px solid #e2e8f0; /* Sehr heller Grau-Blau */
+    border-radius: 8px;
+    background-color: #f7fafc; /* Sehr helles Grau-Blau */
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #718096; /* Mittelgrau-Blau */
+}
+
+input[type="file"],
+textarea,
+#selectPhotoDate {
+    width: calc(100% - 24px);
+    padding: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #cbd5e0; /* Heller Grau-Blau */
+    border-radius: 6px;
+    box-sizing: border-box;
+    font-size: 1rem;
+    font-family: inherit; /* Schriftart erben */
+}
+
+textarea {
+    min-height: 100px;
+}
+
+button {
+    background-color: #667eea; /* Sanftes Lila-Blau */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s ease-in-out;
+}
+
+button:hover {
+    background-color: #5a67d8; /* Dunkleres Lila-Blau */
+}
+
+button#deleteAllPhotosButton {
+    background-color: #e53e3e; /* Sanftes Rot */
+}
+
+button#deleteAllPhotosButton:hover {
+    background-color: #c53030; /* Dunkleres Rot */
+}
+
+#calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.calendar-day {
+    padding: 14px;
+    text-align: center;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: #edf2f7; /* Sehr helles Grau-Blau */
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    color: #4a5568;
+    font-family: 'Outfit', serif; /* Auch für Kalendertage Outfit */
+}
+
+.calendar-day:hover {
+    background-color: #d2e2ef; /* Heller Grau-Blau */
+    color: #2d3748;
+}
+
+.calendar-day.has-photo {
+    background-color: #bee3f8; /* Helles Blau */
+    color: #2c5282;
+    font-weight: 600;
+}
+
+#selectedDayInfo {
+    margin-top: 30px;
+    padding: 25px;
+    text-align: center;
+    background-color: #f7fafc;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    font-family: 'Outfit', serif; /* Outfit für Detailansicht */
+}
+
+#selectedDayInfo img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+#slideshowArea {
+    margin-top: 40px;
+    text-align: center;
+    font-family: 'Outfit', serif; /* Outfit für Diashow */
+}
+
+#slideshowImage {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+#slideshowArea button {
+    margin: 0 15px;
+    padding: 10px 18px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    background-color: white;
+    color: #4a5568;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    font-family: inherit; /* Schriftart erben (sollte jetzt Outfit sein) */
+}
+
+#slideshowArea button:hover {
+    background-color: #edf2f7;
+    color: #2d3748;
+    border-color: #a0aec0;
+}
+
+#photoCalendar {
+    display: none;
+    position: absolute;
+    background-color: #fff;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    z-index: 10;
+    top: calc(100% + 5px); /* Etwas Abstand zum Input */
+    left: 0;
+    border-radius: 12px;
+    overflow: hidden;
+    width: 300px; /* Etwas breiter */
+    font-family: 'Outfit', serif; /* Outfit für den Foto-Kalender */
+}
+
+.calendar-header-photo {
+    background-color: #f7fafc;
+    padding: 15px;
+    text-align: center;
+    font-weight: 600;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+    color: #2d3748;
+}
+
+.calendar-header-photo button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+    color: #718096;
+    transition: color 0.2s ease-in-out;
+    font-family: inherit; /* Schriftart erben */
+}
+
+.calendar-header-photo button:hover {
+    color: #2d3748;
+}
+
+.calendar-weekdays-photo {
+    display: flex;
+    background-color: #edf2f7;
+    border-bottom: 1px solid #e2e8f0;
+    font-family: 'Outfit', serif; /* Outfit für Wochentage */
+}
+
+.calendar-weekdays-photo div {
+    width: calc(100% / 7);
+    text-align: center;
+    padding: 10px;
+    color: #a0aec0;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.calendar-days-photo {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.calendar-days-photo div {
+    width: calc(100% / 7);
+    text-align: center;
+    padding: 12px;
+    border: none;
+    box-sizing: border-box;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: #4a5568;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
+    font-family: 'Outfit', serif; /* Outfit für Kalendertage */
+}
+
+.calendar-days-photo div:hover {
+    background-color: #e2e8f0;
+    color: #2d3748;
+}
+
+.calendar-days-photo div.selected {
+    background-color: #667eea;
+    color: white;
+    font-weight: 600;
+}
+
+.calendar-days-photo div.today {
+    color: #3182ce;
+    font-weight: 600;
+}
+
+.calendar-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-navigation button {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 10px;
+    color: #718096;
+    transition: color 0.2s ease-in-out;
+    font-family: inherit; /* Schriftart erben */
+}
+
+.calendar-navigation button:hover {
+    color: #2d3748;
+}
+
+#calendarViewHeader {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2d3748;
+    font-family: 'Outfit', serif; /* Outfit für Kalenderüberschrift */
+}
+
+#todayPhotoBtn {
+    background: #edf2f7;
+    color: #4a5568;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out, border-color 0.2s ease-in-out;
+    font-family: 'Outfit', serif; /* Outfit für Heute-Button */
+}
+
+#todayPhotoBtn:hover {
+    background-color: #d2e2ef;
+    color: #2d3748;
+    border-color: #a0aec0;
+}
+
+#setDateButton {
+    background-color: #48bb78; /* Sanftes Grün */
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    margin-top: 15px;
+    transition: background-color 0.2s ease-in-out;
+    font-family: 'Outfit', serif; /* Outfit für Speichern-Button */
+}
+
+#setDateButton:hover {
+    background-color: #38a169; /* Dunkleres Grün */
+}
+
+#deleteAllPhotosButton {
+    background-color: #f56565; /* Kräftigeres Rot */
+    font-family: 'Outfit', serif; /* Outfit für Löschen-Button */
+}
+
+#deleteAllPhotosButton:hover {
+    background-color: #e53e3e;
+}
