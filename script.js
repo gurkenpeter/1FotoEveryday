@@ -10,20 +10,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextMonthMainBtn = document.getElementById('nextMonthMain');
     const calendarViewHeader = document.getElementById('calendarViewHeader');
     const todayPhotoBtn = document.getElementById('todayPhotoBtn');
-    const photoPreview = document.getElementById('photoPreview'); // Hol das Vorschau-Element
+    const photoPreview = document.getElementById('photoPreview'); // Get the preview element
 
     let currentDate = new Date();
     let currentYear = currentDate.getFullYear();
     let currentMonth = currentDate.getMonth();
 
-    // Event Listener für den "Heute"-Button neben dem Datumsauswahlfeld
+    // Event listener for the "Today" button next to the date input
     todayPhotoBtn.addEventListener('click', () => {
         const today = new Date();
         const formattedToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
         photoDateInput.value = formattedToday;
     });
 
-    // Event Listener für den "Zurück"-Button (Hauptkalender)
+    // Event listener for the "Previous" button (main calendar)
     prevMonthMainBtn.addEventListener('click', () => {
         currentMonth--;
         if (currentMonth < 0) {
@@ -33,7 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCalendarView(currentYear, currentMonth);
     });
 
-    // Event Listener für den "Weiter"-Button (Hauptkalender)
+    // Event listener for the "Next" button (main calendar)
     nextMonthMainBtn.addEventListener('click', () => {
         currentMonth++;
         if (currentMonth > 11) {
@@ -44,9 +44,9 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     deleteAllPhotosButton.addEventListener('click', () => {
-        if (confirm('Bist du sicher, dass du ALLE gespeicherten Fotos löschen möchtest? Diese Aktion kann nicht rückgängig gemacht werden!')) {
+        if (confirm('Are you sure you want to delete ALL saved photos? This action cannot be undone!')) {
             deleteAllPhotos();
-            alert('Alle gespeicherten Fotos wurden gelöscht.');
+            alert('All saved photos have been deleted.');
             updateCalendarView(currentYear, currentMonth);
             selectedDayInfoDiv.innerHTML = '';
         }
@@ -62,14 +62,14 @@ document.addEventListener('DOMContentLoaded', () => {
             reader.onloadend = () => {
                 const base64Image = reader.result;
                 savePhotoData(dateToSave, base64Image, description);
-                alert(`Foto für den ${dateToSave} gespeichert!`);
+                alert(`Photo saved for ${dateToSave}!`);
                 photoInput.value = '';
                 photoDateInput.value = '';
                 photoDescription.value = '';
-                photoPreview.src = ''; // Vorschau leeren
-                photoPreview.style.display = 'none'; // Vorschau ausblenden
+                photoPreview.src = ''; // Clear preview
+                photoPreview.style.display = 'none'; // Hide preview
                 updateCalendarView(currentYear, currentMonth);
-                // Nach dem Speichern auch die Tagesinfo neu laden, falls das aktuelle Datum ausgewählt ist
+                // Reload day info after saving, if the current date is selected
                 const selectedDateInCalendar = document.querySelector('.calendar-day.selected');
                 if (selectedDateInCalendar) {
                     showDayInfo(selectedDateInCalendar.textContent);
@@ -77,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             };
             reader.readAsDataURL(file);
         } else {
-            alert('Bitte wähle zuerst ein Foto und ein Datum aus.');
+            alert('Please select a photo and a date first.');
         }
     });
 
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem(key);
             }
         }
-        console.log('Alle Fotos wurden aus dem Local Storage gelöscht.');
+        console.log('All photos have been deleted from local storage.');
     }
 
     function savePhotoData(date, imageData, description) {
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
             description: description
         };
         localStorage.setItem(key, JSON.stringify(data));
-        console.log(`Daten für ${date} gespeichert:`, data);
+        console.log(`Data saved for ${date}:`, data);
     }
 
     function getPhotoData(date) {
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const daysInMonth = lastDayOfMonth.getDate();
         const startingDay = firstDayOfMonth.getDay();
 
-        const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
         calendarViewHeader.textContent = `${monthNames[month]} ${year}`;
 
         for (let i = 0; i < startingDay; i++) {
@@ -132,9 +132,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 dayCell.classList.add('has-photo');
             }
             dayCell.addEventListener('click', () => {
-                // Entferne die Klasse 'selected' von allen anderen Tagen
+                // Remove 'selected' class from all other days
                 document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('selected'));
-                // Füge die Klasse 'selected' zum aktuell geklickten Tag hinzu
+                // Add 'selected' class to the clicked day
                 dayCell.classList.add('selected');
                 showDayInfo(date);
             });
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (photoData) {
             selectedDayInfoDiv.innerHTML += `<img src="${photoData.imageData}" style="max-width: 200px;"><p>${photoData.description || ''}</p>`;
         } else {
-            selectedDayInfoDiv.innerHTML += `<p>Kein Foto für diesen Tag gespeichert.</p><button id="setDateButton" data-date="${date}">Foto für diesen Tag speichern</button>`;
+            selectedDayInfoDiv.innerHTML += `<p>No photo saved for this day.</p><button id="setDateButton" data-date="${date}">Save photo for this day</button>`;
             const setDateButton = document.getElementById('setDateButton');
             if (setDateButton) {
                 setDateButton.addEventListener('click', () => {
@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Event Listener für die Fotoauswahl, um eine Vorschau anzuzeigen
+    // Event listener for photo selection to display preview
     photoInput.addEventListener('change', () => {
         const file = photoInput.files[0];
         if (file) {
@@ -179,15 +179,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Initialer Aufruf des Hauptkalenders
+    // Initial call to generate the calendar
     updateCalendarView(currentYear, currentMonth);
 
-    // Zeige die Informationen für den heutigen Tag beim ersten Laden
+    // Show information for today on initial load
     const today = new Date();
     const formattedToday = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
     showDayInfo(formattedToday);
 
-    // Markiere den heutigen Tag im Kalender beim ersten Laden
+    // Mark today's date in the calendar on initial load
     const todayCell = document.querySelector(`.calendar-day:nth-child(${new Date().getDate() + new Date(new Date().getFullYear(), new Date().getMonth(), 1).getDay()})`);
     if (todayCell) {
         todayCell.classList.add('selected');
@@ -201,7 +201,7 @@ function deleteAllPhotos() {
             localStorage.removeItem(key);
         }
     }
-    console.log('Alle Fotos wurden aus dem Local Storage gelöscht.');
+    console.log('All photos have been deleted from local storage.');
 }
 
 function savePhotoData(date, imageData, description) {
@@ -211,7 +211,7 @@ function savePhotoData(date, imageData, description) {
         description: description
     };
     localStorage.setItem(key, JSON.stringify(data));
-    console.log(`Daten für ${date} gespeichert:`, data);
+    console.log(`Data saved for ${date}:`, data);
 }
 
 function getPhotoData(date) {
@@ -226,7 +226,7 @@ function generateCalendar(year, month) {
     const daysInMonth = lastDayOfMonth.getDate();
     const startingDay = firstDayOfMonth.getDay();
 
-    const monthNames = ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"];
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
     calendarViewHeader.textContent = `${monthNames[month]} ${year}`;
     calendarDiv.innerHTML = '';
 
@@ -262,7 +262,7 @@ function showDayInfo(date) {
     if (photoData) {
         selectedDayInfoDiv.innerHTML += `<img src="${photoData.imageData}" style="max-width: 200px;"><p>${photoData.description || ''}</p>`;
     } else {
-        selectedDayInfoDiv.innerHTML += `<p>Kein Foto für diesen Tag gespeichert.</p><button id="setDateButton" data-date="${date}">Foto für diesen Tag speichern</button>`;
+        selectedDayInfoDiv.innerHTML += `<p>No photo saved for this day.</p><button id="setDateButton" data-date="${date}">Save photo for this day</button>`;
         const setDateButton = document.getElementById('setDateButton');
         if (setDateButton) {
             setDateButton.addEventListener('click', () => {
